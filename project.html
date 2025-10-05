@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mini Stock Investment</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f8fa;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  header {
+    background-color: #2563eb;
+    color: white;
+    width: 100%;
+    padding: 1rem 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  main {
+    max-width: 900px;
+    width: 100%;
+    margin: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    padding: 1rem 1.5rem;
+    
+  }
+  #searchBar {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1.1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.8rem;
+    border-bottom: 1px solid #eee;
+  }
+  th {
+    background-color: #f0f4ff;
+  }
+  button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button:hover {
+    background-color: #1e40af;
+  }
+  #tradeSection {
+    margin-top: 1.5rem;
+  }
+  #tradeSection input[type="number"] {
+    width: 80px;
+    padding: 0.3rem;
+    margin-left: 0.5rem;
+  }
+  #message {
+    margin-top: 1rem;
+    font-weight: bold;
+    color: green;
+  }
+</style>
+</head>
+<body>
+<header>Mini Stock Investment</header>
+<main>
+  <input type="text" id="searchBar" placeholder="Search stocks (e.g. AAPL, TSLA, MSFT)" />
+
+  <table id="stockTable">
+    <thead>
+      <tr><th>Symbol</th><th>Name</th><th>Price</th><th>Change</th><th>Action</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <section id="tradeSection" style="display:none;">
+    <h3>Trade <span id="stockName"></span></h3>
+    <label>Shares:
+      <input type="number" id="sharesInput" min="1" value="1" />
+    </label>
+    <button id="buyBtn">Buy</button>
+    <button id="sellBtn">Sell</button>
+    <div id="message"></div>
+  </section>
+</main><!-- Additional HTML to add inside <main> below the trade section -->
+
+<section id="paymentSection">
+  <h3>Pay via UPI</h3>
+  <label for="upiId">Enter UPI ID:</label>
+  <input type="text" id="upiId" placeholder="example@upi" />
+  <button id="payBtn">Pay</button>
+  <div id="paymentMessage"></div>
+</section>
+
+<script>
+  // UPI payment simulation
+  const payBtn = document.getElementById("payBtn");
+  const upiIdInput = document.getElementById("upiId");
+  const paymentMessage = document.getElementById("paymentMessage");
+
+  function validateUpi(upi) {
+    // Basic regex to validate UPI format: some_text@some_text
+    const upiRegex = /^[\w.\-]{2,}@[a-zA-Z]{2,}$/;
+    return upiRegex.test(upi);
+  }
+
+  payBtn.addEventListener("click", () => {
+    const upiId = upiIdInput.value.trim();
+    if(!validateUpi(upiId)) {
+      paymentMessage.style.color = "red";
+      paymentMessage.innerText = "Invalid UPI ID format. Please enter a valid UPI ID.";
+      return;
+    }
+    // Simulate payment success
+    paymentMessage.style.color = "green";
+    paymentMessage.innerText = `Payment successful via UPI ID: ${upiId}`;
+  });
+</script>
+
+<script>
+  // Sample stock data
+  const stocks = [
+    { symbol: "AAPL", name: "Apple Inc.", price: 175.64, change: 1.15 },
+    { symbol: "TSLA", name: "Tesla Inc.", price: 745.32, change: -2.30 },
+    { symbol: "MSFT", name: "Microsoft Corp.", price: 290.12, change: 0.85 },
+    { symbol: "AMZN", name: "Amazon.com Inc.", price: 3300.56, change: -10.42 },
+    { symbol: "GOOGL", name: "Alphabet Inc.", price: 2751.40, change: 12.90 },
+  ];
+
+  const stockTableBody = document.querySelector("#stockTable tbody");
+  const searchBar = document.getElementById("searchBar");
+  const tradeSection = document.getElementById("tradeSection");
+  const stockNameSpan = document.getElementById("stockName");
+  const sharesInput = document.getElementById("sharesInput");
+  const buyBtn = document.getElementById("buyBtn");
+  const sellBtn = document.getElementById("sellBtn");
+  const messageDiv = document.getElementById("message");
+
+  // Render stock table rows
+  function renderStocks(filter = "") {
+    stockTableBody.innerHTML = "";
+    const filteredStocks = stocks.filter(stock => 
+      stock.symbol.toLowerCase().includes(filter.toLowerCase()) || 
+      stock.name.toLowerCase().includes(filter.toLowerCase())
+    );
+    filteredStocks.forEach(stock => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${stock.symbol}</td>
+        <td>${stock.name}</td>
+        <td>$${stock.price.toFixed(2)}</td>
+        <td style="color:${stock.change >= 0 ? 'green' : 'red'};">
+          ${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)}
+        </td>
+        <td><button data-symbol="${stock.symbol}">Trade</button></td>
+      `;
+      stockTableBody.appendChild(tr);
+    });
+  }
+
+  renderStocks();
+
+  // Search stocks on input
+  searchBar.addEventListener("input", e => {
+    renderStocks(e.target.value);
+    tradeSection.style.display = "none";
+    messageDiv.innerText = "";
+  });
+
+  // Click trade button to open trade section
+  stockTableBody.addEventListener("click", e => {
+    if(e.target.tagName === "BUTTON") {
+      const symbol = e.target.dataset.symbol;
+      const stock = stocks.find(s => s.symbol === symbol);
+      if(stock){
+        stockNameSpan.innerText = `${stock.name} (${stock.symbol})`;
+        sharesInput.value = 1;
+        tradeSection.style.display = "block";
+        messageDiv.innerText = "";
+        currentStock = stock;
+      }
+    }
+  });
+
+  let currentStock = null;
+
+  // Buy or sell logic (simulated)
+  function trade(action) {
+    const shares = Number(sharesInput.value);
+    if(!shares || shares < 1){
+      messageDiv.style.color = "red";
+      messageDiv.innerText = "Enter a valid number of shares.";
+      return;
+    }
+    messageDiv.style.color = "green";
+    messageDiv.innerText = `${action}ed ${shares} shares of ${currentStock.symbol} at $${currentStock.price.toFixed(2)} each.`;
+  }
+
+  buyBtn.addEventListener("click", () => trade("Buy"));
+  sellBtn.addEventListener("click", () => trade("Sell"));
+</script>
+</body>
+</html>
