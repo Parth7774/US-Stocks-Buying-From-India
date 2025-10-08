@@ -1,4 +1,4 @@
-# 🇺🇸💹 US Stock Market Buying from India
+# 🇺🇸💹 US Stock Market uying from India
 
 A modern and responsive **web interface** that simulates **buying US stocks from India**, built using **HTML**, **CSS**, and **JavaScript**.  
 This project provides a clean UI for searching US stocks, viewing mock prices, and simulating purchases — perfect for learning front-end development and understanding how stock trading platforms work.
